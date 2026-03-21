@@ -33,6 +33,7 @@ li {
     justify-content: center;
     align-items: center;
     display: flex;
+    max-height: 20%;
 }
 
 .main-menu a:hover {
