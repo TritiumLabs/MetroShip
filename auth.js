@@ -6,11 +6,11 @@ const BACKEND_TOKEN_EXCHANGE_URL = '/api/exchange-token';
 
 document.getElementById('login-link')?.addEventListener('click', (e) => {
     e.preventDefault();
-    const authUrl = new URL('https://oauth.hackclub.com/authorize');
+    const authUrl = new URL('https://auth.hackclub.com/oauth/authorize');
     authUrl.searchParams.set('client_id', CLIENT_ID);
     authUrl.searchParams.set('redirect_uri', REDIRECT_URI);
     authUrl.searchParams.set('response_type', 'code');
-    authUrl.searchParams.set('scope', 'read:user');
+    authUrl.searchParams.set('scope', 'email');
 
     window.location.href = authUrl.toString();
 });

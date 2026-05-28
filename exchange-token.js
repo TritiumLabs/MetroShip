@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     const CLIENT_SECRET = process.env.HACKCLUB_CLIENT_SECRET; // Pulled from Coolify/Server env
 
     try {
-        const response = await fetch('https://oauth.hackclub.com/api/token', {
+        const response = await fetch('https://auth.hackclub.com/api/token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
