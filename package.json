@@ -1,0 +1,13 @@
+{
+  "name": "metroship",
+  "version": "1.0.0",
+  "description": "OAuth implementation for MetroShip",
+  "main": "auth.js",
+  "scripts": {},
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^4.22.2"
+  },
+  "author": "",
+  "license": "ISC"
+}

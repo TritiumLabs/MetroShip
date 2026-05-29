@@ -7,15 +7,19 @@ body {
 li {
     color:limegreen;
     font-size: 2vw;
-    
+    list-style-type: none;
+
     font-weight: bold;
     margin-right: 2%;
 }
-.main-menu a, a:visited {
+.main-menu, a {
     color:limegreen;
     text-decoration: none;
 }
 
+#user-status {
+    color:rgb(255, 0, 144);
+}
 
 .title a, .title a:visited {
     color: red;
@@ -41,7 +45,7 @@ li {
 }
 .navbar {
     background-color: rgb(20, 20, 20);
-    padding: 2%;
+    padding: 1%;
     padding-top: 10px;
     padding-bottom: 10px;
     border-radius: 10px;
@@ -52,12 +56,17 @@ li {
     justify-content: space-between;
     align-items: center;
     display: flex;
-    font-size: 1.8vw;
+    font-size: 2vw;
+}
+.main-menu {
+    width: 40%;
+    height: 50%;
+    display: block;
 }
 
 
 .container {
-    max-width: 100%;
+    max-width: 110%;
     margin: 0;
     padding: 0;
 }
