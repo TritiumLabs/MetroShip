@@ -35,14 +35,14 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'No authorization code provided' });
         }
 
-        const CLIENT_ID = '3fa659eb0cbcf147ed16dee0abdc0962';
-        const CLIENT_SECRET = process.env.CLIENT_SECRET;
+        const CLIENT_ID = '2ciUev1XVQ1kwX5LMTWGnk0V1kabE8fH9tqAvHcWVTY';
+        const CLIENT_SECRET = process.env.HACKATIME_SECRET;
 
         if (!CLIENT_SECRET) {
             return res.status(500).json({ error: 'CLIENT_SECRET is not configured on the server.' });
         }
 
-        const oauthResponse = await fetch('https://auth.hackclub.com/oauth/token', {
+        const oauthResponse = await fetch('https://hackatime.hackclub.com/oauth/token', {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
         const contentType = oauthResponse.headers.get('content-type');
         if (!oauthResponse.ok || !contentType || !contentType.includes('application/json')) {
             const errorText = await oauthResponse.text();
-            console.error('Error response from Hack Club OAuth:', oauthResponse.status, errorText);
+            console.error('Error response from Hackatime OAuth:', oauthResponse.status, errorText);
             return res.status(oauthResponse.status).json({ success: false, error: 'Auth provider error', details: errorText });
         }
 

@@ -1,35 +1,99 @@
 body {
     background-color: black;
-    font-family:'Gill Sans', 'Gill Sans MT', 'Trebuchet MS', sans-serif;
+    font-family:'Lexend Giga','Helvetica', 'Gill Sans', 'Gill Sans MT', 'Trebuchet MS', sans-serif;
     color:aqua
+
+}
+@font-face {
+  font-family: 'Lexend Giga';
+  src: url('/LexendGiga-VariableFont_wght.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Train One';
+  src: url('/TrainOne-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Lobster';
+  src: url('/Lobster-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Monoton';
+  src: url('/Monoton-Regular.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'Nasalization';
+    src: url('/Nasalization Rg.otf') format('opentype');
+}
+#project-card div {
+    color:aqua;
+    text-decoration: none;
 
 }
 li {
     color:limegreen;
-    font-size: 2vw;
+    font-size: 1.8vw;
     list-style-type: none;
 
     font-weight: bold;
     margin-right: 2%;
 }
-.main-menu, a {
+.main-menu a {
     color:limegreen;
     text-decoration: none;
 }
 
 #user-status {
     color:rgb(255, 0, 144);
+    font-family:'Nasalization';
+    font-size: 2vw;
+}
+#htuser-status {
+    color:rgb(255, 0, 144);
+    font-family:'Nasalization';
+    font-size: 2vw;
+}
+#logout-link {
+    color:rgb(255, 120, 0);
+}
+#htlogout-link {
+    color:rgb(255, 120, 0);
+}
+#projects {
+    color:blue
+}
+#home {
+    color:limegreen;
 }
 
+#logout-link:hover {
+    color:rgb(94, 44, 0);
+}
+#htlogout-link:hover {
+    color:rgb(94, 44, 0);
+}
+#projects:hover {
+    color:rgb(0, 0, 97)
+}
+#home:hover {
+    color:rgb(15, 101, 15);
+}
+.title h1 {
+    font-size: 3vw;
+    font-family: 'Nasalization';
+}
+.title {
+    width:55%;
+}
 .title a, .title a:visited {
     color: red;
     text-decoration: none;
+    font-family: 'Nasalization';
 }
 .title a:hover {
     color: rgb(121, 1, 1);
 }
 #map {
-    width: 100em;
+    width: 90em;
     height: 50em;
 }
 
@@ -61,6 +125,8 @@ li {
 .main-menu {
     width: 40%;
     height: 50%;
+    margin-left: -5%;
+    padding-left: -1%;
     display: block;
 }
 
@@ -84,3 +150,4 @@ li {
 .aboutbox p, .aboutbox h1{
     font-size: 1.5dvw;
 }
+

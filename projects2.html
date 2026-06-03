@@ -7,7 +7,7 @@
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
         crossorigin=""/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>MetroShip | Projects</title>
+        <title>MetroShip | Home</title>
         <link rel="icon" type="image/x-icon" href="/images/favicon.png">
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
@@ -25,12 +25,12 @@
                 </div>
                 <div class = "main-menu">
                     <ul>
-                    <li><a href="#" id="htuser-status"></a></li>
+                    <li><h4 href="#" id="htuser-status"></h4></li>
+                    <br>
                     <li><a href="index.html">Home</a></li>
                     <li><a href="#" id="htlogin-link"></a></li>
-                    <li><a href="#" id="htlogout-link"></a></li>
                     <li><a href="#" id="projects">Projects</a></li>
-
+                    <li><a href="#" id="htlogout-link"></a></li>
                     </ul>
     
                 </div>
@@ -39,6 +39,13 @@
             </div>
             
         </nav>
-        <script>src="hackatime-auth.js"</script>
+        <a href="#" id="load-projects"></a>
+        <div id="projects-container">
+                
+        </div>
+    
+        <script src="hackatime-auth.js"></script>
+        <script src = "projects.js"></script>
+
     </body>
 </html>
