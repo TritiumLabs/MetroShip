@@ -165,7 +165,76 @@ app.post('/api/project-scripts', async (req, res) => {
             console.error('Hackatime email error:', error);
             return res.status(500).json({ error: 'Internal Server Error' });
         }
-    } else {
+    } else if(req.query.action === 'getProjects'){
+        try {
+            const accessToken = req.body.accessToken;
+            const HTProjResponse = await fetch(
+                `https://hackatime.hackclub.com/api/v1/authenticated/projects`,
+                {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    }
+                }
+        );
+
+        if (!HTProjResponse.ok) {
+            const errorBody = await HTProjResponse.text();
+            console.error('Hackatime Error:', errorBody);
+            return res.status(HTProjResponse.status).json({ error: 'Failed to fetch from Hackatime' });
+        }
+
+        const data = await HTProjResponse.json();
+        console.log({htData: data});
+
+        
+
+        if (!data) {
+            console.error('No email returned from Hackatime API', data);
+            return res.status(404).json({ error: 'No email found' });
+        }
+
+        // Return the data to the frontend
+        return res.status(200).json({ success: true, data: data });
+        } catch (error) {
+            console.error('Hackatime email error:', error);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+    }else if(req.query.action === 'patchHTProjectName'){
+        const selectedProjectName = req.body.selectedProjectName;
+        const selectedProjectATid = req.body.selectedProjectATid;
+        console.log({selectedProjectName: selectedProjectName});
+        console.log({selectedProjectATid: selectedProjectATid});
+        try {
+            const airtablePatchResponse = await fetch(
+                `https://api.airtable.com/v0/${process.env.AIRTABLE_BASE_ID}/YSWS%20Project%20Submission/${selectedProjectATid}`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        Authorization: `Bearer ${process.env.AIRTABLE_PAT}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        fields: {
+                            "Hackatime Project Name": selectedProjectName, //set the field in airtable to the HT project name
+                        }
+                    })
+                }
+            );
+            if (!airtablePatchResponse.ok) {
+                 const errorBody = await airtablePatchResponse.text();
+                console.error('Airtable Patch Error:', errorBody);
+                return res.status(airtablePatchResponse.status).json({ error: 'Failed to Patch to Airtable' });
+            }
+            const data = await airtablePatchResponse.json();
+            console.log("Airtable patch success", data)
+            return res.status(200).json({ success: true, data: data});
+
+        } catch (error) {
+            console.error('Airtable patch error:', error);
+        }
+    }else {
         try {
             const AIRTABLE_PAT = process.env.AIRTABLE_PAT;
             const BASE_ID = process.env.AIRTABLE_BASE_ID;
@@ -202,7 +271,7 @@ app.post('/api/project-scripts', async (req, res) => {
 
             const data = await airtableResponse.json();
             // Return the records to the frontend
-            return res.status(200).json({ success: true, records: data.records });
+            return res.status(200).json({ success: true, records: data.records});
 
 
         } catch (error) {

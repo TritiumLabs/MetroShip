@@ -1,0 +1,19 @@
+<div class="overlay-content" style="background: #0f0f0f;
+    border: 2px solid rgb(255, 0, 144);
+    padding: 20px; 
+    margin: 5% auto; 
+    width: 70%; 
+    max-height: 80vh; 
+    overflow-y: auto; 
+    position: relative; 
+    pointer-events: auto; 
+    border-radius:10px;">
+    <span class="close-btn" style="position: absolute; top: 10px; right: 20px; font-size: 30px; cursor: pointer; color: red;">&times;</span>
+    <h2 id="overlay-title" style="color: aqua;">{{PROJECT_NAME}}</h2>
+    <hr style="border-color: aqua;">
+    <div class="details-body" style="font-size: 1.4vw; color: rgb(255, 67, 205);">
+        <p>You are viewing details for: <strong>{{PROJECT_NAME}}</strong></p>
+        <p>Contact: <span style="color: aqua;">{{EMAIL}}</span></p>
+        <p>Time Logged: <span style="color: aqua;">{{HOURS}} hours</span><div id="connect-project">Connect to Hackatime</div><select id="project-select"></select></p>
+    </div>
+</div>

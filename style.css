@@ -24,9 +24,47 @@ body {
     font-family: 'Nasalization';
     src: url('/Nasalization Rg.otf') format('opentype');
 }
-#project-card div {
-    color:aqua;
+#load-projects {
+    color:rgb(191, 0, 255);
     text-decoration: none;
+    font-family:'Nasalization';
+    font-size: 3vw;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+
+}
+#projects-container {
+    justify-content: center;
+    align-items: center;
+    display:block;
+
+}
+#overlay {
+    display: none; /* Controlled by project-deets.js */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Dims the background */
+    z-index: 1000; /* Stays above the map and cards */
+    overflow: auto; /* Allows scrolling if content is taller than the screen */
+    backdrop-filter: blur(5px); /* Adds a modern frosted glass effect */
+}
+#project-card, .project-card {
+    justify-content: center;
+    align-items: center;
+    display:block;
+    color:aqua;
+    font-size: 1.5vw;
+    cursor:pointer;
+
+}
+.projects-page {
+    justify-content: center;
+    align-items: center;
+    display:grid;
 
 }
 li {
@@ -150,4 +188,3 @@ li {
 .aboutbox p, .aboutbox h1{
     font-size: 1.5dvw;
 }
-

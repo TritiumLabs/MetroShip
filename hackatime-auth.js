@@ -45,7 +45,7 @@ function updateAuthUI() {
         if (htlogoutLink) htlogoutLink.textContent = 'Logout';
         if (projects) projects.href = 'projects2.html';
         if (projects) projects.style.display = 'inline';
-        if (loadProjects) loadProjects.style.display = 'inline';
+        //if (loadProjects) loadProjects.style.display = 'inline';
         if (loadProjects) loadProjects.textContent = 'Load Projects';
         
         //if (projectScript) projectScript.src = 'projects2.js';

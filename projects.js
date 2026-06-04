@@ -23,7 +23,8 @@ async function fetchProjects(email) {
 
         if (data.success) {
             console.log('Airtable Records:', data.records);
-            displayProjects(data.records);
+            localStorage.setItem('airtableProjects', JSON.stringify(data.records));
+            await displayProjects(data.records);
             
         } else {
             console.error('Failed to load projects:', data.error);
@@ -48,7 +49,9 @@ async function getHackatimeUserData() {
                  return null;
             }
             console.log('Hackatime User Data', data.success, data.email);
+            localStorage.setItem('email', data.email);
             return data; // Return the email
+
         } else {
             console.error('Failed to get Hackatime user data:', data.error || 'Unknown error');
             return null; // Indicate failure
@@ -60,16 +63,38 @@ async function getHackatimeUserData() {
 
 
 
-function displayProjects(records) {
+async function displayProjects(records) {
+    //records is from AirTable
     const container = document.getElementById('projects-container');
     if (!container) return;
-    
-    container.innerHTML = records.map(record => `
-        <div class="project-card">${record.fields["Project Name"] || 'Unnamed Project'}</div>
-    `).join('');
+
+    try {
+        const response = await fetch('project-card.html');
+        const template = await response.text();
+        const storedProjects = JSON.parse(localStorage.getItem('projects') || '[]');
+       
+
+
+        container.innerHTML = records.map(record => {
+            const projectData = storedProjects.find(p => (typeof p === 'string' ? p : p.name) === record.fields["Hackatime Project Name"]);
+            
+            const selectedHTHours = (projectData && projectData.total_seconds !== undefined) ? projectData.total_seconds / 3600: 0;
+
+            let html = template.replace(/{{PROJECT_NAME}}/g, record.fields["Project Name"] || 'Unnamed Project');
+            // Inject Email and Hours (or whatever your Airtable field is named, e.g., 'Total Hours')
+            html = html.replace(/{{EMAIL}}/g, record.fields["Email"] || 'N/A');
+            html = html.replace(/{{HOURS}}/g, selectedHTHours.toFixed(2) || '0'); 
+            html = html.replace(/{{PROJECT_ID}}/g, record.id || 'N/Aa');
+            html = html.replace(/{{HT_CONNECTED}}/g, projectData?'Yes':'No');
+            return html;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading project template:', error);
+    }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+    handler();
     document.getElementById('load-projects')?.addEventListener('click', (e) => {
         e.preventDefault();
         handler();
