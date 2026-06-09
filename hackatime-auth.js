@@ -1,5 +1,23 @@
 // Replace 'YOUR_CLIENT_ID' with the Client ID provided by Hack Club OAuth
-const CLIENT_ID = '2ciUev1XVQ1kwX5LMTWGnk0V1kabE8fH9tqAvHcWVTY'; 
+const CLIENT_ID = '2ciUev1XVQ1kwX5LMTWGnk0V1kabE8fH9tqAvHcWVTY';
+
+async function updateReviewerLink() {
+    const email = localStorage.getItem('email');
+    const link = document.getElementById('reviewer-link');
+    if (!link) return;
+    if (!email) { link.style.display = 'none'; return; }
+    try {
+        const res = await fetch('/api/is-reviewer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        const { isReviewer } = await res.json();
+        link.style.display = isReviewer ? 'inline' : 'none';
+    } catch {
+        link.style.display = 'none';
+    }
+}
 
 // Standardize the redirect URI to the origin root
 const HTREDIRECT_URI = window.location.origin + window.location.pathname; // Keep this one as it matches your dashboard
@@ -32,7 +50,8 @@ function updateAuthUI() {
     const htuserStatus = document.getElementById('htuser-status');
     const htlogoutLink = document.getElementById('htlogout-link');
     const projects = document.getElementById('projects');
-    const loadProjects = document.getElementById('load-projects');
+    const newProject = document.getElementById('new-project');
+    const prizes = document.getElementById('prizes');
     //const projectScript = document.getElementById('project-script');
 
 
@@ -46,8 +65,20 @@ function updateAuthUI() {
         if (projects) projects.href = 'projects2.html';
         if (projects) projects.style.display = 'inline';
         //if (loadProjects) loadProjects.style.display = 'inline';
-        if (loadProjects) loadProjects.textContent = 'Load Projects';
-        
+        if (newProject) {
+            newProject.textContent = 'New Project';
+            const userEmail = localStorage.getItem('email') || '';
+            const formBase = 'https://airtable.com/app9IYnpxO1DtNd97/pagMZ83gw96vY9fVc/form';
+            newProject.href = userEmail
+                ? `${formBase}?prefill_Email=${encodeURIComponent(userEmail)}`
+                : formBase;
+            newProject.target = '_blank';
+        }
+        if (prizes) {
+            prizes.href = 'prizes.html';
+            prizes.style.display = 'inline';
+        }
+
         //if (projectScript) projectScript.src = 'projects2.js';
 
 
@@ -58,13 +89,20 @@ function updateAuthUI() {
         if (htlogoutLink) htlogoutLink.style.display = 'none';
         if (projects) projects.style.display = 'none';
         if (projects) projects.href = '#';
-
+        if (prizes) {
+            prizes.href = '#';
+            prizes.style.display = 'none';
+        }
 
     }
+    updateReviewerLink();
 }
 
 window.addEventListener('DOMContentLoaded', () => {
     updateAuthUI();
+    if (localStorage.getItem('htloggedIn') === 'false' && !localStorage.getItem('htaccessToken')){
+        updateAuthUI();
+    }
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     const state = urlParams.get('state');
@@ -75,6 +113,9 @@ window.addEventListener('DOMContentLoaded', () => {
             if (data.success) {
                 localStorage.setItem('htloggedIn', 'true');
                 localStorage.setItem('htaccessToken', data.accessToken);
+                if (typeof handler === 'function') {
+                    handler().then(() => updateReviewerLink());
+                }
                 // Clean up URL and redirect/refresh
                 const cleanUrl = window.location.origin + window.location.pathname;
                 window.history.replaceState({}, document.title, cleanUrl);

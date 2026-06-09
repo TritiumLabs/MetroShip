@@ -22,6 +22,8 @@ document.getElementById('logout-link')?.addEventListener('click', (e) => {
     e.preventDefault();
     localStorage.removeItem('loggedIn');
     localStorage.removeItem('accessToken');
+    localStorage.removeItem('htloggedIn');
+    localStorage.removeItem('htaccessToken');
     updateAuthUI();
     // Optional: redirect to home or refresh
     window.location.reload();
@@ -33,6 +35,8 @@ function updateAuthUI() {
     const userStatus = document.getElementById('user-status');
     const logoutLink = document.getElementById('logout-link');
     const projects = document.getElementById('projects');
+    const prizes = document.getElementById('prizes');
+
 
 
     if (isLoggedIn) {
@@ -44,6 +48,10 @@ function updateAuthUI() {
         if (logoutLink) logoutLink.textContent = 'Logout';
         if (projects) projects.href = 'projects2.html';
         if (projects) projects.style.display = 'inline';
+        if (prizes && localStorage.getItem('htloggedIn') === 'true'){
+            prizes.href = 'prizes.html';
+            prizes.style.display = 'inline';
+        }
 
 
     } else {
@@ -53,8 +61,10 @@ function updateAuthUI() {
         if (logoutLink) logoutLink.style.display = 'none';
         if (projects) projects.style.display = 'none';
         if (projects) projects.href = '#';
-
-
+        if (prizes) {
+            prizes.href = '#';
+            prizes.style.display = 'none';
+        }
     }
 }
 

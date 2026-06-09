@@ -50,7 +50,89 @@ document.addEventListener('click', async (e) => {
 
     } else if (e.target && e.target.id === 'connect-project') {
         e.preventDefault();
-        
+
+    } else if (e.target.closest('#ship-btn')) {
+        const btn = e.target.closest('#ship-btn');
+        const currentShipped = btn.dataset.shipped === 'true';
+        const newShipped = !currentShipped;
+        const recordId = localStorage.getItem('selectedProjectId');
+        if (!recordId) return;
+        try {
+            const res = await fetch('/api/patch-project-details', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ recordId, field: 'Shipped', value: newShipped })
+            });
+            const data = await res.json();
+            if (data.success) {
+                const airtableProjects = JSON.parse(localStorage.getItem('airtableProjects') || '[]');
+                const record = airtableProjects.find(r => r.id === recordId);
+                if (record) {
+                    record.fields['Shipped'] = newShipped;
+                    localStorage.setItem('airtableProjects', JSON.stringify(airtableProjects));
+                }
+                updateOverlay(false);
+            }
+        } catch (err) {
+            console.error('Error toggling shipped:', err);
+        }
+
+    } else if (e.target.closest('.edit-field-btn')) {
+        const field = e.target.closest('.edit-field-btn').dataset.field;
+        document.querySelectorAll('.edit-field-input').forEach(row => {
+            if (row.dataset.field === field) row.style.display = 'flex';
+        });
+        document.querySelectorAll('.edit-field-btn').forEach(btn => {
+            if (btn.dataset.field === field) btn.style.display = 'none';
+        });
+        const fieldMap = { 'Description': 'desc-display', 'Code URL': 'codeurl-display', 'Demo URL': 'demourl-display' };
+        const displaySpan = document.getElementById(fieldMap[field]);
+        if (displaySpan) displaySpan.style.display = 'none';
+
+    } else if (e.target.closest('.cancel-field-btn')) {
+        const field = e.target.closest('.cancel-field-btn').dataset.field;
+        document.querySelectorAll('.edit-field-input').forEach(row => {
+            if (row.dataset.field === field) row.style.display = 'none';
+        });
+        document.querySelectorAll('.edit-field-btn').forEach(btn => {
+            if (btn.dataset.field === field) btn.style.display = 'flex';
+        });
+        const fieldMap = { 'Description': 'desc-display', 'Code URL': 'codeurl-display', 'Demo URL': 'demourl-display' };
+        const displaySpan = document.getElementById(fieldMap[field]);
+        if (displaySpan) displaySpan.style.display = '';
+
+    } else if (e.target.closest('.save-field-btn')) {
+        const btn = e.target.closest('.save-field-btn');
+        const field = btn.dataset.field;
+        let input = null;
+        document.querySelectorAll('.field-input').forEach(el => { if (el.dataset.field === field) input = el; });
+        const recordId = localStorage.getItem('selectedProjectId');
+        console.log('Save clicked — field:', field, 'value:', input?.value, 'recordId:', recordId);
+        if (!input || !recordId) return;
+
+        const value = input.value.trim();
+        try {
+            const res = await fetch('/api/patch-project-details', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ recordId, field, value })
+            });
+            const data = await res.json();
+            console.log('patch-project-details response:', data);
+            if (data.success) {
+                const airtableProjects = JSON.parse(localStorage.getItem('airtableProjects') || '[]');
+                const record = airtableProjects.find(r => r.id === recordId);
+                if (record) {
+                    record.fields[field] = value;
+                    localStorage.setItem('airtableProjects', JSON.stringify(airtableProjects));
+                }
+                updateOverlay(false);
+            } else {
+                console.error('Patch failed:', data);
+            }
+        } catch (err) {
+            console.error('Error saving field:', err);
+        }
     }
 });
 
@@ -129,30 +211,69 @@ async function updateOverlay(change) {
         const email = record.fields["Email"] || 'N/A';
         const projectName = record.fields["Project Name"] || 'Unnamed Project';
         
+        const htName = (change === true) ? localStorage.getItem('updateHtName') : record.fields["Hackatime Project Name"];
+        const storedHT = JSON.parse(localStorage.getItem('projects') || '[]');
+        const htProj = storedHT.find(p => (typeof p === 'string' ? p : p.name) === htName);
+        const rawSecs = htProj ? (htProj.total_seconds || 0) : 0;
+
         let hours;
         if (change === true) {
             hours = localStorage.getItem('selectedProjectHours') || '0.00';
-
         } else {
-            // Calculate initial hours from Hackatime projects list
-            const storedHT = JSON.parse(localStorage.getItem('projects') || '[]');
-            const htProj = storedHT.find(p => (typeof p === 'string' ? p : p.name) === record.fields["Hackatime Project Name"]);
-            hours = (htProj && htProj.total_seconds !== undefined) ? (htProj.total_seconds / 3600).toFixed(2) : '0.00';
+            hours = (rawSecs / 3600).toFixed(2);
+        }
+
+        // Fetch MetroShip hours from project creation date
+        let metroshipHours = '0.00';
+        const createdDate = record.createdTime ? record.createdTime.split('T')[0] : null;
+        const accessToken = localStorage.getItem('htaccessToken') || '';
+        if (htName && createdDate && accessToken) {
+            try {
+                const statsRes = await fetch(`/api/my-hackatime-hours?accessToken=${encodeURIComponent(accessToken)}&projectName=${encodeURIComponent(htName)}&startDate=${createdDate}`);
+                const statsData = await statsRes.json();
+                if (statsData.success && statsData.projectTotal != null) {
+                    metroshipHours = (statsData.projectTotal / 3600).toFixed(2);
+                }
+            } catch {}
         }
 
         try {
             // Fetch the external HTML file
             const response = await fetch('project-details-template.html');
             const template = await response.text();
-            
+
+            const desc = record.fields["Description"] || '';
+            const codeUrl = record.fields["Code URL"] || '';
+            const demoUrl = record.fields["Demo URL"] || '';
+            const shipped = record.fields["Shipped"] ? 'true' : 'false';
+
             // Chain replacements for all placeholders
             const finalHtml = template
                 .replace(/{{PROJECT_NAME}}/g, projectName)
                 .replace(/{{EMAIL}}/g, email)
-                .replace(/{{HOURS}}/g, hours);
+                .replace(/{{HOURS}}/g, hours)
+                .replace(/{{METROSHIP_HOURS}}/g, metroshipHours)
+                .replace(/{{DESC}}/g, desc)
+                .replace(/{{CODEURL}}/g, codeUrl)
+                .replace(/{{DEMOURL}}/g, demoUrl)
+                .replace(/{{SHIPPED}}/g, shipped);
 
             overlay.innerHTML = finalHtml;
             overlay.style.display = 'block';
+
+            // Style the ship button based on shipped state
+            const shipBtn = document.getElementById('ship-btn');
+            if (shipBtn) {
+                if (shipped === 'true') {
+                    shipBtn.textContent = '✓ Shipped';
+                    shipBtn.style.borderColor = 'limegreen';
+                    shipBtn.style.color = 'limegreen';
+                } else {
+                    shipBtn.textContent = 'Ship Project';
+                    shipBtn.style.borderColor = 'aqua';
+                    shipBtn.style.color = 'aqua';
+                }
+            }
         } catch (error) {
             console.error('Error loading project details template:', error);
         }
@@ -192,11 +313,10 @@ async function updateOverlay(change) {
                 });
                 localStorage.setItem('projects', JSON.stringify(result.data.projects)); //Store project JSON list from HT
                 fetchProjects(email);
-
-                displayProjects(airtableProjects);
             }
         } catch (error) {
             console.error('Error connecting project:', error);
         }
-    }                         
+    }
 }
+

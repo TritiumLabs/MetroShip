@@ -3,9 +3,8 @@ async function handler() {
         const HTUserDataResponse = await getHackatimeUserData();
         if (HTUserDataResponse && HTUserDataResponse.success) {
             fetchProjects(HTUserDataResponse.email);
+            if (typeof updateAuthUI === 'function') updateAuthUI();
         }
-
-
     } catch (error) {
         console.error('Error in projects handler:', error);
     }
@@ -64,30 +63,39 @@ async function getHackatimeUserData() {
 
 
 async function displayProjects(records) {
-    //records is from AirTable
     const container = document.getElementById('projects-container');
     if (!container) return;
 
     try {
-        const response = await fetch('project-card.html');
-        const template = await response.text();
-        const storedProjects = JSON.parse(localStorage.getItem('projects') || '[]');
-       
-
+        const template = await (await fetch('project-card.html')).text();
 
         container.innerHTML = records.map(record => {
-            const projectData = storedProjects.find(p => (typeof p === 'string' ? p : p.name) === record.fields["Hackatime Project Name"]);
-            
-            const selectedHTHours = (projectData && projectData.total_seconds !== undefined) ? projectData.total_seconds / 3600: 0;
-
-            let html = template.replace(/{{PROJECT_NAME}}/g, record.fields["Project Name"] || 'Unnamed Project');
-            // Inject Email and Hours (or whatever your Airtable field is named, e.g., 'Total Hours')
-            html = html.replace(/{{EMAIL}}/g, record.fields["Email"] || 'N/A');
-            html = html.replace(/{{HOURS}}/g, selectedHTHours.toFixed(2) || '0'); 
-            html = html.replace(/{{PROJECT_ID}}/g, record.id || 'N/Aa');
-            html = html.replace(/{{HT_CONNECTED}}/g, projectData?'Yes':'No');
-            return html;
+            const htConnected = record.fields["Hackatime Project Name"] ? 'Yes' : 'No';
+            return template
+                .replace(/{{PROJECT_NAME}}/g, record.fields["Project Name"] || 'Unnamed Project')
+                .replace(/{{EMAIL}}/g, record.fields["Email"] || 'N/A')
+                .replace(/{{HOURS}}/g, '...')
+                .replace(/{{PROJECT_ID}}/g, record.id || '')
+                .replace(/{{HT_CONNECTED}}/g, htConnected);
         }).join('');
+
+        // Async: fetch MetroShip hours (from project creation date) per project in parallel
+        const accessToken = localStorage.getItem('htaccessToken') || '';
+        await Promise.all(records.map(async record => {
+            const hoursEl = document.getElementById(`card-hours-${record.id}`);
+            const htName = record.fields["Hackatime Project Name"];
+            if (!htName || !accessToken) { if (hoursEl) hoursEl.textContent = '0.00'; return; }
+            const createdDate = record.createdTime ? record.createdTime.split('T')[0] : null;
+            if (!createdDate) { if (hoursEl) hoursEl.textContent = '0.00'; return; }
+            try {
+                const res = await fetch(`/api/my-hackatime-hours?accessToken=${encodeURIComponent(accessToken)}&projectName=${encodeURIComponent(htName)}&startDate=${createdDate}`);
+                const data = await res.json();
+                if (hoursEl) {
+                    hoursEl.textContent = (data.success && data.projectTotal != null)
+                        ? (data.projectTotal / 3600).toFixed(2) : '0.00';
+                }
+            } catch { if (hoursEl) hoursEl.textContent = '0.00'; }
+        }));
     } catch (error) {
         console.error('Error loading project template:', error);
     }
@@ -95,8 +103,5 @@ async function displayProjects(records) {
 
 window.addEventListener('DOMContentLoaded', () => {
     handler();
-    document.getElementById('load-projects')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        handler();
-    });
+    
 });

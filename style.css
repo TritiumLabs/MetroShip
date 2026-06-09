@@ -4,6 +4,19 @@ body {
     color:aqua
 
 }
+.token-display {
+    position: sticky;
+    top: 0;
+    z-index: 500;
+    text-align: right;
+    padding: 0.35rem 1.5rem;
+    color: aqua;
+    font-size: 1.2vw;
+    font-weight: bold;
+    background: rgba(0, 0, 0, 0.88);
+    border-bottom: 1px solid aqua;
+    backdrop-filter: blur(4px);
+}
 @font-face {
   font-family: 'Lexend Giga';
   src: url('/LexendGiga-VariableFont_wght.ttf') format('truetype');
@@ -24,7 +37,9 @@ body {
     font-family: 'Nasalization';
     src: url('/Nasalization Rg.otf') format('opentype');
 }
-#load-projects {
+
+
+#new-project {
     color:rgb(191, 0, 255);
     text-decoration: none;
     font-family:'Nasalization';
@@ -79,6 +94,29 @@ li {
     color:limegreen;
     text-decoration: none;
 }
+.prizes-line-art-container {
+    /* Define the visible area for the cropped image */
+    width: 30%; /* Adjust to your desired width */
+    /* To make it scale proportionally, set an aspect ratio for the cropped image. */
+    aspect-ratio: 14.4 / 1; /* Example: If original image is 1:1, cropped bottom half is 2:1 aspect ratio. Adjust as needed. */
+    overflow: hidden; /* This is crucial for hiding the top half */
+    display: inline-block; /* Or 'block', depending on your layout needs */
+    justify-content: space-between;
+    vertical-align: middle; /* Helps align with surrounding text if inline */
+}
+
+.line-art1 {
+    /* Make the image fill the width of its container */
+    width: 100%;
+    /* Make the image twice as tall as its container to effectively "crop" */
+    height: 200%;
+    transform:scaleY(-1);
+    /* Ensure the image covers the container while maintaining its aspect ratio */
+    object-fit: cover;
+    /* Position the bottom of the image within the container's visible area */
+    object-position: bottom;
+}
+
 
 #user-status {
     color:rgb(255, 0, 144);
@@ -99,6 +137,9 @@ li {
 #projects {
     color:blue
 }
+#prizes {
+    color:red
+}
 #home {
     color:limegreen;
 }
@@ -111,6 +152,9 @@ li {
 }
 #projects:hover {
     color:rgb(0, 0, 97)
+}
+#prizes:hover {
+    color:rgb(141, 0, 0)
 }
 #home:hover {
     color:rgb(15, 101, 15);
@@ -183,6 +227,70 @@ li {
     text-align: center;
     
     
+}
+
+.prizes-container {
+    /* Replace the path below with your actual background image file */
+    /* Keeps background still while scrolling */
+    margin-top: 10%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers cards horizontally */
+    padding: 60px 0;
+    position: relative;
+}
+
+.background-image {
+    position:absolute;
+    top: 2.2vw;
+    align-self: center;
+    width: 1.5%;
+}
+
+.prize-card {
+    background-color: rgba(15, 15, 15, 0.055); /* Semi-transparent black */
+    
+    padding: 1.5vw 1vw 1.5vw 2.5vw; /* Scales with screen width */
+    width: 50%;
+    display: flex;
+    align-items: center;
+    left: 7.85%;
+    gap: 4vw;
+    position: relative; /* Necessary to allow 'top' vertical adjustments */
+    margin-bottom: 1.5vw;
+}
+
+.prize-hours {
+    
+    font-size: 2.5vw;
+    color: aqua;
+    min-width: 12vw;
+    text-align: center;
+    border-right: 2px solid rgba(255, 255, 255, 0); /* Subtle vertical line */
+    padding: 0 2vw; /* Equal padding on both sides to maintain centering */
+}
+
+.prize-info {
+    font-size: 1.5vw;
+    text-align: left;
+    cursor: pointer;
+}
+
+.prize-image {
+    margin-left: auto; /* Pushes the image to the far right of the flex container */
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+
+}
+
+.prize-image img {
+    width: 11vw;
+    height: 11vw;
+    object-fit: cover;
+    border-radius: 50%;
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.7);
 }
 
 .aboutbox p, .aboutbox h1{
